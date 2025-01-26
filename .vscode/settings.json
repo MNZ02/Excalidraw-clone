@@ -3,5 +3,7 @@
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "prisma-smart-formatter.typescript.defaultFormatter": "numso.prettier-standard-vscode",
+  "prisma-smart-formatter.typescriptreact.defaultFormatter": "vscode.typescript-language-features"
 }
