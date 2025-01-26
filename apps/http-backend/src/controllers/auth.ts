@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { Request, Response } from 'express'
 import { JWT_SECRET } from '@repo/backend-common/config'
-import { RegisterSchema, LoginSchema } from '@repo/common/types'
+import { RegisterSchema,LoginSchema } from '@repo/common/types'
 
 
 export const register = async (req: Request, res: Response) => {
