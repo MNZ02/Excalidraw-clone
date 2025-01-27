@@ -8,45 +8,29 @@ import {prismaClient} from '@repo/db/client'
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { password, username, ...data } = req.body
-    const schema = RegisterSchema.safeParse(req.body);
+    const parsedData = RegisterSchema.safeParse(req.body);
 
-    if(!schema.success) {
+    if(!parsedData.success) {
       res.status(400).json({message: "Zod validation failed"})
-    }
-
-    if (!password || !data || !username) {
-      res.status(400).json({ message: 'Invalid credentials' })
       return
     }
 
-    const exisitingUser = await User.findOne({ username: username })
-    if (exisitingUser) {
-      res.status(400).json({ message: 'Username already exists' })
-      return
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const user = await User.create({
-      password: hashedPassword,
-      username: username,
-      ...data
-    })
-    if (!user) {
-      res.status(400).json({ message: 'Unable to create user' })
-      return
-    }
-
-
-    const token = jwt.sign(
-      { userId: user?._id, username },
-      JWT_SECRET,
-      {
-        expiresIn: '1h'
+    try {
+     await prismaClient.user.create({
+      data: {
+       firstName: parsedData.data.firstName,
+       lastName: parsedData.data.lastName,
+       username: parsedData.data.username,
+       password: parsedData.data.password  || ''
       }
-    )
+     }) 
+    } catch (error) {
+      res.status(411).json({message: "User already exists with this username"})
+    }
+ 
 
-    res.status(201).json({ token })
+
+    res.status(201).json({ userId:'123' })
   } catch (error) {
     console.error('Error registering user', error)
     res.status(500).json({ message: 'Internal server error' })
