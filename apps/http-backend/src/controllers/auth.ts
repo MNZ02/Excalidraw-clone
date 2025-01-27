@@ -16,6 +16,16 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(parsedData.data.password, 10)
 
+
+    const existingUser = await prismaClient.user.findUnique({
+      where:{username: parsedData.data.username}
+    })
+
+    if(existingUser) {
+      res.status(400).json({message: "Username already exists"})
+      return
+    }
+
     const user = await prismaClient.user.create({
       data: {
         firstName: parsedData.data.firstName,
@@ -25,53 +35,54 @@ export const register = async (req: Request, res: Response) => {
       },
     })
 
-    res.status(201).json({ userId: user })
+    const token = jwt.sign({userId: user.id}, JWT_SECRET, {expiresIn:'1h'}) 
+    if(!token) {
+      res.status(411).json({message:'Unable to generate token'})
+      return
+    }
+    res.status(201).json({ token })
   } catch (error) {
     console.error('Error registering user', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }
 
-// export const login = async (req: Request, res: Response) => {
-//   try {
-//     const { username, password } = req.body
-//     const schema = LoginSchema.safeParse(req.body)
+export const login = async (req: Request, res: Response) => {
+  try {
+    const parsedData = LoginSchema.safeParse(req.body)
 
-//     if (!schema.success) {
-//       res.status(400).json({ message: 'Zod validation failed' })
-//     }
+    if (!parsedData.success) {
+      res.status(400).json({ message: 'Zod validation failed' })
+      return
+    }
 
-//     if (!username || !password) {
-//       res.status(400).json({ message: 'Invalid credentials' })
-//       return
-//     }
 
-//     const existingUser = await User.findOne({ username })
-//     if (!existingUser) {
-//       res.status(404).json({ message: 'User not found' })
-//       return
-//     }
+    const user = await prismaClient.user.findUnique({
+      where: {username: parsedData.data.username}
+    })
 
-//     const comparedPassword = bcrypt.compare(
-//       password,
-//       existingUser?.password as string,
-//     )
-//     if (!comparedPassword) {
-//       res.status(400).json({ message: 'Invalid credentials' })
-//       return
-//     }
+    if(!user) {
+      res.status(404).json({message: "User not found"})
+      return
+    }
 
-//     const token = jwt.sign(
-//       { userId: existingUser?._id, username },
-//       JWT_SECRET,
-//       {
-//         expiresIn: '1h',
-//       },
-//     )
+    const comparePassword = await bcrypt.compare(parsedData.data.password, user.password);
 
-//     res.status(200).json({ token })
-//   } catch (error) {
-//     console.error('Error while logging in', error)
-//     res.status(500).json({ message: 'Internal server error' })
-//   }
-// }
+    if(!comparePassword) {
+      res.status(400).json({message: "Password donot match"});
+      return
+    }
+
+    const token = jwt.sign({userId: user?.id}, JWT_SECRET, {expiresIn:"1h"})
+    if(!token) {
+      res.status(411).json({message:'Unable to generate token'})
+      return
+    }
+   
+
+    res.status(200).json({ token })
+  } catch (error) {
+    console.error('Error while logging in', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
