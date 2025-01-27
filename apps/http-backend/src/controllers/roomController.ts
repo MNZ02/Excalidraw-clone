@@ -12,8 +12,8 @@ export const createRoom = async (req: Request, res: Response) => {
 
     const userId = req.userId
     if (!userId) {
-       res.status(401).json({ message: 'User is not authenticated' })
-       return
+      res.status(401).json({ message: 'User is not authenticated' })
+      return
     }
 
     const existingRoom = await prismaClient.room.findUnique({

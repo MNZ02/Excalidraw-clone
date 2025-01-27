@@ -12,6 +12,6 @@ app.use(
 )
 
 app.use('/auth', authRoutes)
-app.use('/api', roomRoutes);
+app.use('/api', roomRoutes)
 
 export default app

@@ -5,6 +5,14 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 const wss = new WebSocketServer({ port: 8080 })
 
 wss.on('connection', (ws, request) => {
+  const checkUser = (token: string) => {
+    const decoded = jwt.verify(token, JWT_SECRET)
+
+    if (typeof decoded === 'string') {
+      ws.close()
+      return
+    }
+  }
   const url = request.url
 
   if (!url) return
