@@ -16,13 +16,12 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(parsedData.data.password, 10)
 
-
     const existingUser = await prismaClient.user.findUnique({
-      where:{username: parsedData.data.username}
+      where: { username: parsedData.data.username },
     })
 
-    if(existingUser) {
-      res.status(400).json({message: "Username already exists"})
+    if (existingUser) {
+      res.status(400).json({ message: 'Username already exists' })
       return
     }
 
@@ -35,9 +34,9 @@ export const register = async (req: Request, res: Response) => {
       },
     })
 
-    const token = jwt.sign({userId: user.id}, JWT_SECRET, {expiresIn:'1h'}) 
-    if(!token) {
-      res.status(411).json({message:'Unable to generate token'})
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' })
+    if (!token) {
+      res.status(411).json({ message: 'Unable to generate token' })
       return
     }
     res.status(201).json({ token })
@@ -56,29 +55,32 @@ export const login = async (req: Request, res: Response) => {
       return
     }
 
-
     const user = await prismaClient.user.findUnique({
-      where: {username: parsedData.data.username}
+      where: { username: parsedData.data.username },
     })
 
-    if(!user) {
-      res.status(404).json({message: "User not found"})
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
       return
     }
 
-    const comparePassword = await bcrypt.compare(parsedData.data.password, user.password);
+    const comparePassword = await bcrypt.compare(
+      parsedData.data.password,
+      user.password,
+    )
 
-    if(!comparePassword) {
-      res.status(400).json({message: "Password donot match"});
+    if (!comparePassword) {
+      res.status(400).json({ message: 'Password donot match' })
       return
     }
 
-    const token = jwt.sign({userId: user?.id}, JWT_SECRET, {expiresIn:"1h"})
-    if(!token) {
-      res.status(411).json({message:'Unable to generate token'})
+    const token = jwt.sign({ userId: user?.id }, JWT_SECRET, {
+      expiresIn: '1h',
+    })
+    if (!token) {
+      res.status(411).json({ message: 'Unable to generate token' })
       return
     }
-   
 
     res.status(200).json({ token })
   } catch (error) {
