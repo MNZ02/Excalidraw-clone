@@ -1,4 +1,3 @@
-import User from '../models/User'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { Request, Response } from 'express'
@@ -33,46 +32,46 @@ export const register = async (req: Request, res: Response) => {
   }
 }
 
-export const login = async (req: Request, res: Response) => {
-  try {
-    const { username, password } = req.body
-    const schema = LoginSchema.safeParse(req.body)
+// export const login = async (req: Request, res: Response) => {
+//   try {
+//     const { username, password } = req.body
+//     const schema = LoginSchema.safeParse(req.body)
 
-    if (!schema.success) {
-      res.status(400).json({ message: 'Zod validation failed' })
-    }
+//     if (!schema.success) {
+//       res.status(400).json({ message: 'Zod validation failed' })
+//     }
 
-    if (!username || !password) {
-      res.status(400).json({ message: 'Invalid credentials' })
-      return
-    }
+//     if (!username || !password) {
+//       res.status(400).json({ message: 'Invalid credentials' })
+//       return
+//     }
 
-    const existingUser = await User.findOne({ username })
-    if (!existingUser) {
-      res.status(404).json({ message: 'User not found' })
-      return
-    }
+//     const existingUser = await User.findOne({ username })
+//     if (!existingUser) {
+//       res.status(404).json({ message: 'User not found' })
+//       return
+//     }
 
-    const comparedPassword = bcrypt.compare(
-      password,
-      existingUser?.password as string,
-    )
-    if (!comparedPassword) {
-      res.status(400).json({ message: 'Invalid credentials' })
-      return
-    }
+//     const comparedPassword = bcrypt.compare(
+//       password,
+//       existingUser?.password as string,
+//     )
+//     if (!comparedPassword) {
+//       res.status(400).json({ message: 'Invalid credentials' })
+//       return
+//     }
 
-    const token = jwt.sign(
-      { userId: existingUser?._id, username },
-      JWT_SECRET,
-      {
-        expiresIn: '1h',
-      },
-    )
+//     const token = jwt.sign(
+//       { userId: existingUser?._id, username },
+//       JWT_SECRET,
+//       {
+//         expiresIn: '1h',
+//       },
+//     )
 
-    res.status(200).json({ token })
-  } catch (error) {
-    console.error('Error while logging in', error)
-    res.status(500).json({ message: 'Internal server error' })
-  }
-}
+//     res.status(200).json({ token })
+//   } catch (error) {
+//     console.error('Error while logging in', error)
+//     res.status(500).json({ message: 'Internal server error' })
+//   }
+// }
