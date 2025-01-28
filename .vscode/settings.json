@@ -7,6 +7,6 @@
   "prisma-smart-formatter.typescript.defaultFormatter": "numso.prettier-standard-vscode",
   "prisma-smart-formatter.typescriptreact.defaultFormatter": "esbenp.prettier-vscode",
   "[typescript]": {
-    "editor.defaultFormatter": "numso.prettier-standard-vscode"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }
